@@ -32600,13 +32600,19 @@ class serialport(object):
         return tx,v1,v2        
 
     def R1_BTET(self):
-        return self.R1.beanAndEnvironmentalTemp()
+        tx = aw.qmc.timeclock.elapsed()/1000.
+        v1,v2 = self.R1.environmentAndBeanTemperature()
+        return tx,v1,v2
 
     def R1_HeaterAndFanSpeed(self):
-        return self.R1.heaterAndFanSpeed()
+        tx = aw.qmc.timeclock.elapsed()/1000.
+        v1,v2 = self.R1.heaterAndFanSpeed()
+        return tx,v1,v2
 
     def R1_ModeAndDrumSpeed(self):
-        return self.R1.modeAndDrumSpeed()
+        tx = tx = aw.qmc.timeclock.elapsed()/1000.
+        v1,v2 =self.R1.modeAndDrumSpeed()
+        return tx,v1,v2
 
     def HOTTOP_BTET(self):
         tx = aw.qmc.timeclock.elapsed()/1000.

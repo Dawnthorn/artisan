@@ -9430,30 +9430,11 @@ class SampleThread(QThread):
                     else:
                         timeAfterExtra = libtime.perf_counter() # the time the data of all extra devices was received
                     if aw.qmc.oversampling and aw.qmc.delay >= aw.qmc.oversampling_min_delay:
-                        # let's do the oversampling thing and take a second reading from the main device
-                        sampling_interval = aw.qmc.delay/1000.
-                        etbt_time = timeAfterETBT - timeBeforeETBT
-                        gone = timeAfterExtra - timeBeforeETBT
-                        # only do it if there is enough time to do the ET/BT sampling (which takes etbt_time) 
-                        # and only half of the sampling interval is gone
-                        if (sampling_interval - gone) > etbt_time and gone < (sampling_interval / 2.0):
-                            # place the second ET/BT sampling in the middle of the sampling interval
-                            libtime.sleep((sampling_interval / 2.0) - gone)
-                            tx_2,t1_2,t2_2 = self.sample_main_device()
-                            tx = tx + (tx_2 - tx) / 2.0
-                            if t1 != -1 and t2 != -1 and t1_2 != -1 and t2_2 != -1:
-                                t2 = (t2 + t2_2) / 2.0
-                                t1 = (t1 + t1_2) / 2.0
-                            else: # use new values only to fix reading errors of the initial set of values
-                                if t1 == -1:
-                                    t1 = t1_2
-                                elif t1_2 != -1:
-                                    t1 = (t1 + t1_2) / 2.0
-                                if t2 == -1:
-                                    t2 = t2_2
-                                elif t2_2 != -1:
-                                    t2 = (t2 + t2_2) / 2.0
-                    ####### all values retrieved                
+                        result = self.oversample(timeBeforeETBT, timeAfterETBT, timeAfterExtra, tx, t1, t2)
+                        if result is not None:
+                            tx, t1, t2 = result
+
+                    ####### all values retrieved
 
                     if aw.qmc.ETfunction is not None and len(aw.qmc.ETfunction):
                         t1 = aw.qmc.eval_math_expression(aw.qmc.ETfunction,tx,RTsname="Y1",RTsval=t1)
@@ -9847,6 +9828,41 @@ class SampleThread(QThread):
                 aw.qmc.samplingsemaphore.release(1)
             #update screen in main GUI thread
             self.updategraphics.emit()   
+
+    #
+    # oversample expects aw.qmc.samplingsemaphore to be acquired before
+    # being called.
+    #
+    def oversample(self, timeBeforeETBT, timeAfterETBT, timeAfterExtra, tx, t1, t2):
+        # let's do the oversampling thing and take a second reading from the main device
+        sampling_interval = aw.qmc.delay/1000.
+        etbt_time = timeAfterETBT - timeBeforeETBT
+        gone = timeAfterExtra - timeBeforeETBT
+        # only do it if there is enough time to do the ET/BT sampling (which takes etbt_time)
+        # and only half of the sampling interval is gone
+        if (sampling_interval - gone) > etbt_time and gone < (sampling_interval / 2.0):
+            # place the second ET/BT sampling in the middle of the sampling interval
+            aw.qmc.samplingsemaphore.release(1)
+            libtime.sleep((sampling_interval / 2.0) - gone)
+            gotlock = aw.qmc.samplingsemaphore.tryAcquire(1,200)
+            if not gotlock:
+                raise Exception("Couldn't reacquire sample sempahpore when trying to oversample.")
+            tx_2,t1_2,t2_2 = self.sample_main_device()
+            tx = tx + (tx_2 - tx) / 2.0
+            if t1 != -1 and t2 != -1 and t1_2 != -1 and t2_2 != -1:
+                t2 = (t2 + t2_2) / 2.0
+                t1 = (t1 + t1_2) / 2.0
+            else: # use new values only to fix reading errors of the initial set of values
+                if t1 == -1:
+                    t1 = t1_2
+                elif t1_2 != -1:
+                    t1 = (t1 + t1_2) / 2.0
+                if t2 == -1:
+                    t2 = t2_2
+                elif t2_2 != -1:
+                    t2 = (t2 + t2_2) / 2.0
+            return tx, t1, t2
+        return None
 
     # returns true after BT passed the TP
     def checkTPalarmtime(self):

@@ -2126,8 +2126,6 @@ class tgraphcanvas(FigureCanvas):
                 self.baseX,self.baseY = None, None
                 self.base_horizontalcrossline, self.base_verticalcrossline = None, None
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " onclick() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -2193,8 +2191,6 @@ class tgraphcanvas(FigureCanvas):
                         menu.triggered.connect(self.event_popup_action)
                         menu.popup(QCursor.pos())
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " onclick() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -2499,8 +2495,6 @@ class tgraphcanvas(FigureCanvas):
 
         except Exception as e:
             self.flagon = False
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " updategraphics() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -2602,8 +2596,6 @@ class tgraphcanvas(FigureCanvas):
                     self.updateBackground()
                     #self.delayedUpdateBackground()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " timealign() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -3583,8 +3575,6 @@ class tgraphcanvas(FigureCanvas):
                     aw.extraLCD1[i].display(zz)
                     aw.extraLCD2[i].display(zz)
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " clearMeasurements() {0}").format(str(ex)),exc_tb.tb_lineno)
         finally:
@@ -3818,8 +3808,6 @@ class tgraphcanvas(FigureCanvas):
                 if self.crossmarker:
                     self.togglecrosslines()
             except Exception as ex:
-#                import traceback
-#                traceback.print_exc(file=sys.stdout)
                 _, _, exc_tb = sys.exc_info()
                 aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " reset() {0}").format(str(ex)),exc_tb.tb_lineno)
             finally:
@@ -3885,8 +3873,6 @@ class tgraphcanvas(FigureCanvas):
             else:
                 return y
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " smooth() {0}").format(str(ex)),exc_tb.tb_lineno)
             return x
@@ -3937,9 +3923,7 @@ class tgraphcanvas(FigureCanvas):
             else:
                 return l.tolist()
         except Exception:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
-            pass
+            aw.logger.exception("Error running decay_smooth_list")
 
     def annotate(self, temp, time_str, x, y, yup, ydown,e=0,a=1.):                
         if aw.qmc.patheffects:
@@ -4130,8 +4114,6 @@ class tgraphcanvas(FigureCanvas):
                         self.ax.axvspan(timex[tidx],endidx, facecolor=self.palette["rect4"], ec='none', alpha=0.3, clip_on=False, clip_path=None, lw=None)#,lod=False)                        
                 aw.qmc.l_annotations = anno_artists
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " place_annotations() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -4185,8 +4167,6 @@ class tgraphcanvas(FigureCanvas):
                 delta2 = delta2.tolist()
             return delta1, delta2
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " recomputeDeltas() {0}").format(str(e)),exc_tb.tb_lineno)
             return [0]*len(timex),[0]*len(timex)
@@ -4689,9 +4669,7 @@ class tgraphcanvas(FigureCanvas):
                         try:
                             self.place_annotations(-1,d,self.timeB,self.timeindexB,self.temp2B,self.stemp2B,startB,self.timex,self.timeindex,TP_time=self.TP_time_B,TP_time_loaded=self.TP_time_B_loaded)
                         except Exception:
-                            pass
-#                            import traceback
-#                            traceback.print_exc(file=sys.stdout)
+                            aw.logger.exception("Error placing annotations")
                         
                     #END of Background
                     
@@ -5187,8 +5165,6 @@ class tgraphcanvas(FigureCanvas):
                     rcParams['path.effects'] = []  
                         
             except Exception as ex:
-#                import traceback
-#                traceback.print_exc(file=sys.stdout)
                 _, _, exc_tb = sys.exc_info()    
                 aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " redraw() {0}").format(str(ex)),exc_tb.tb_lineno)
             finally:
@@ -7063,8 +7039,6 @@ class tgraphcanvas(FigureCanvas):
             else:
                 aw.sendmessage(QApplication.translate("Message","Timer is OFF", None))
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " EventRecordAction() {0}").format(str(e)),exc_tb.tb_lineno)
         finally:
@@ -7268,8 +7242,6 @@ class tgraphcanvas(FigureCanvas):
                 fontprop_medium.set_size("medium")
                 self.ax.set_xlabel(aw.arabicReshape(QApplication.translate("Label", "min",None)),color = self.palette["xlabel"],fontproperties=fontprop_medium)
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " writecharacteristics() {0}").format(str(ex)),exc_tb.tb_lineno)
     
@@ -7441,8 +7413,6 @@ class tgraphcanvas(FigureCanvas):
                         self.ax.text(self.timex[self.timeindex[0]]+ dryphasetime+midphasetime+finishphasetime+max(coolphasetime/2.,coolphasetime/3.),statisticslower,st4,color=self.palette["text"],ha="center",fontproperties=statsprop)
             self.writecharacteristics(TP_index,LP)
         except Exception as ex:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " writestatistics() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -7696,8 +7666,6 @@ class tgraphcanvas(FigureCanvas):
                     else:
                         res = "%.8f * log(%.8f * t %s %.8f, e)" % (popt[0],popt[1],("+" if popt[2] > 0 else ""),popt[2])
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror(QApplication.translate("Error Message","Error in lnRegression:",None) + " lnRegression() " + str(e),exc_tb.tb_lineno)
         return res
@@ -7723,8 +7691,6 @@ class tgraphcanvas(FigureCanvas):
             aw.qmc.adderror(QApplication.translate("Error Message","Value Error:",None) + " univariate()")
 
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror(QApplication.translate("Error Message","Exception:",None) + " univariate() " + str(e),exc_tb.tb_lineno)
             return
@@ -7880,6 +7846,7 @@ class tgraphcanvas(FigureCanvas):
 
     #adds errors (can be called also outside the GUI thread, eg. from the sampling thread as actuall message is written by updategraphics in the GUI thread)
     def adderror(self,error,line=None):
+        aw.logger.exception(error)
         try:
             #### lock shared resources #####
             aw.qmc.errorsemaphore.acquire(1)
@@ -7936,8 +7903,6 @@ class tgraphcanvas(FigureCanvas):
                 f.close()
                 aw.sendmessage(QApplication.translate("Message","Points saved", None))
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " savepoints() {0}").format(str(e)),exc_tb.tb_lineno)
         
@@ -7958,8 +7923,6 @@ class tgraphcanvas(FigureCanvas):
                 self.redrawdesigner()
                 aw.sendmessage(QApplication.translate("Message","Points loaded", None))
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " loadpoints() {0}").format(str(e)),exc_tb.tb_lineno)
             
@@ -8351,8 +8314,6 @@ class tgraphcanvas(FigureCanvas):
                         aw.sendmessage(string1+string2+string3)
 
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " on_motion() {0}").format(str(e)),exc_tb.tb_lineno)
             self.unrarefy_designer()
@@ -9215,17 +9176,13 @@ class VMToolbar(NavigationToolbar):
                 for line in steps_post_lines:
                     line.set_drawstyle("steps-post")
             except Exception as e:
-#                import traceback
-#                traceback.print_exc(file=sys.stdout)
-                pass
+                aw.logger.exception("Error steps-post")
             aw.fetchCurveStyles()
             # the redraw is mostly necessary to force a redraw of the legend to reflect the changed colors/styles/labels
             aw.qmc.redraw(recomputeAllDeltas=False)
         except Exception as e:
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " edit_parameters() {0}").format(str(e)),exc_tb.tb_lineno)
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
     
 
 ########################################################################################
@@ -9293,8 +9250,6 @@ class SampleThread(QThread):
                     tempx[-1] = (tempx[-2] + temp) / 2.0
                 return temp                
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " filterDropOuts() {0}").format(str(e)),exc_tb.tb_lineno)            
             return temp
@@ -9879,8 +9834,6 @@ class SampleThread(QThread):
                             aw.qmc.autoTPIdx = 1
                             aw.qmc.TPalarmtimeindex = aw.findTP()
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " sample() {0}").format(str(e)),exc_tb.tb_lineno)
         finally:
@@ -11746,8 +11699,6 @@ class ApplicationWindow(QMainWindow):
             self.recentRoasts = [d] + rr[:self.maxRecentRoasts-1]
             self.updateNewMenuRecentRoasts()
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " addRecentRoast(): {0}").format(str(e)),exc_tb.tb_lineno)
         
@@ -12257,8 +12208,7 @@ class ApplicationWindow(QMainWindow):
                 # no DROP event registered
                 return None, None
         except Exception:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)        
+            aw.logger.exception("Error in curvesSimilarity")
             return None, None
             
     def setLCDsDigitCount(self,n):
@@ -12744,8 +12694,6 @@ class ApplicationWindow(QMainWindow):
                 self.FCslcd.display("--:--")
                 self.FCslabel.setText("<small><b>&raquo;" + u(QApplication.translate("Label", "FCs",None)) + "</b></small>")
         except Exception as e:        
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " updatePhasesLCDs() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -14285,8 +14233,6 @@ class ApplicationWindow(QMainWindow):
                     if not aw.qmc.flagstart:
                         self.qmc.fig.canvas.draw()
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " changeEventNumber() {0}").format(str(e)),exc_tb.tb_lineno)        
         finally:
@@ -14489,8 +14435,6 @@ class ApplicationWindow(QMainWindow):
             if fileName:
                 self.loadFile(fileName)
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " fileLoad() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -14521,8 +14465,6 @@ class ApplicationWindow(QMainWindow):
                 self.sendmessage(message)
                 self.setCurrentFile(filename)
         except IOError as ex:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()  
             aw.qmc.adderror((QApplication.translate("Error Message", "IO Error:",None) + " {0}").format(str(ex)))
             # remove file from the recent file list
@@ -14537,13 +14479,9 @@ class ApplicationWindow(QMainWindow):
                 if isinstance(widget, ApplicationWindow):
                     widget.updateRecentFileActions()
         except ValueError as ex:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()  
             aw.qmc.adderror((QApplication.translate("Error Message", "Value Error:",None) + " fileload() {0}").format(str(ex)),exc_tb.tb_lineno)
         except Exception as ex:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()  
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " loadFile() {0}").format(str(ex)),exc_tb.tb_lineno)
         finally:
@@ -14790,8 +14728,6 @@ class ApplicationWindow(QMainWindow):
             aw.autoAdjustAxis()
             self.qmc.redraw()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importCSV() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -14888,9 +14824,7 @@ class ApplicationWindow(QMainWindow):
 
             self.updateExtraLCDvisibility()
         except Exception:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
-            pass
+            self.logger.exception("Error adding device")
 
     #Write readings to Artisan JSON file
     def exportJSON(self,filename):
@@ -14901,8 +14835,6 @@ class ApplicationWindow(QMainWindow):
             outfile.close()
             return True
         except Exception as ex:
-#            import traceback
-#           traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " exportJSON() {0}").format(str(ex)),exc_tb.tb_lineno)
             return False
@@ -15024,8 +14956,6 @@ class ApplicationWindow(QMainWindow):
             ET.ElementTree(tree).write(filename,encoding='utf-8', xml_declaration=True)
             return True
         except Exception as ex:
-#           import traceback
-#           traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " exportPilot() {0}").format(str(ex)),exc_tb.tb_lineno)
             return False
@@ -15102,8 +15032,6 @@ class ApplicationWindow(QMainWindow):
             outfile.close()
             return True
         except Exception as ex:
-#           import traceback
-#           traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " exportRoastLogger() {0}").format(str(ex)),exc_tb.tb_lineno)
             return False
@@ -15125,8 +15053,6 @@ class ApplicationWindow(QMainWindow):
                 aw.autoAdjustAxis()
                 self.qmc.redraw()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importJSON() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -15140,8 +15066,6 @@ class ApplicationWindow(QMainWindow):
                 self.importRoastLoggerEnc(filename,'latin1')
             aw.qmc.safesaveflag = True
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importRoastLogger() {0}").format(str(ex)),exc_tb.tb_lineno)
             
@@ -15409,8 +15333,6 @@ class ApplicationWindow(QMainWindow):
                         error_msg += "Please rename sliders in Config - Events menu"
 
         except Exception:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             if roastlogger_action_section == "No actions loaded":
                 error_msg += "Roastlogger file does not contain actions.  Alarms will not be loaded."
             else:
@@ -15537,8 +15459,6 @@ class ApplicationWindow(QMainWindow):
             else:
                 return False
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " exportCSV() {0}").format(str(ex)),exc_tb.tb_lineno)
             return False
@@ -15562,8 +15482,6 @@ class ApplicationWindow(QMainWindow):
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " deserialize() {0}").format(str(ex)),exc_tb.tb_lineno)
             return {}
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
 
 
     def ensureCorrectExtraDeviceListLenght(self):
@@ -16019,8 +15937,6 @@ class ApplicationWindow(QMainWindow):
                     
             return True
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             # we don't report errors on settingsLoad
             _, _, exc_tb = sys.exc_info()
             QMessageBox.information(aw,QApplication.translate("Error Message", "Exception:",None) + " setProfile()",str(ex) + "@line " + str(exc_tb.tb_lineno))
@@ -17635,8 +17551,6 @@ class ApplicationWindow(QMainWindow):
             
         except Exception:
             res = False
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             QMessageBox.information(aw,QApplication.translate("Error Message", "Error",None),QApplication.translate("Error Message", "Exception:",None) + "  settingsLoad()  @line " + str(exc_tb.tb_lineno))
 
@@ -17669,8 +17583,6 @@ class ApplicationWindow(QMainWindow):
                 FigureCanvas.updateGeometry(aw.stack)
         except Exception:
             res = False
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             QMessageBox.information(self,QApplication.translate("Error Message", "Error",None),QApplication.translate("Error Message", "Exception:",None) + " settingsLoad()  @line " + str(exc_tb.tb_lineno))
         return res
@@ -17700,8 +17612,6 @@ class ApplicationWindow(QMainWindow):
             else:
                 return False
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " startWebLCDs() {0}").format(str(e)),exc_tb.tb_lineno)
             self.stopWebLCDs()
@@ -17919,8 +17829,6 @@ class ApplicationWindow(QMainWindow):
                 self.qmc.etypes[2] = self.qmc.l_eventtype3dots.get_label()
                 self.qmc.etypes[3] = self.qmc.l_eventtype4dots.get_label()
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " fetchCurveStyles() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -18493,8 +18401,6 @@ class ApplicationWindow(QMainWindow):
             settings.setValue("recentRoasts",self.recentRoasts)
 
         except Exception:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info() 
             QMessageBox.information(aw,QApplication.translate("Error Message", "Error",None),QApplication.translate("Error Message", "Exception:",None) + " closeEvent()  @line " + str(exc_tb.tb_lineno))
 
@@ -19099,9 +19005,7 @@ class ApplicationWindow(QMainWindow):
                             ws['G{0}'.format(c)] = "=(E{0} - F{0}) / E{0}".format(c)
                             ws['G{0}'.format(c)].number_format = '0.0%'
                         except Exception as e:
-#                            import traceback
-#                            traceback.print_exc(file=sys.stdout)
-                            pass
+                            aw.logger.exception("Error formating excel report profiles")
                     # write trailer
                     if c > 1:
                         ws['A{0}'.format(c+1)] = u(QApplication.translate("HTML Report Template", "SUM", None))
@@ -19117,13 +19021,9 @@ class ApplicationWindow(QMainWindow):
                         ws['G{0}'.format(c+1)].number_format = '0.0%'
                     wb.save(filename)
                 except Exception as e:
-#                    import traceback
-#                    traceback.print_exc(file=sys.stdout)
-                    pass
-                    
+                    aw.logger.exception("Error formatting excel report")
 
-                    
-                    
+
     # extracts the following from a give profile dict in a new dict:
     #  . "temp_unit": string (temperature unit, F or C)
     #  . "timex" : [] array of sample times
@@ -19382,8 +19282,6 @@ class ApplicationWindow(QMainWindow):
                 try:
                     rd = self.profileRankingData(p)
                 except Exception as e:
-#                        import traceback
-#                        traceback.print_exc(file=sys.stdout)
                     _, _, exc_tb = sys.exc_info()
                     aw.qmc.adderror((QApplication.translate("Error Message","Exception (probably due to an empty profile):",None) + " rankingReport() {0}").format(str(e)),exc_tb.tb_lineno)
                     continue
@@ -19487,8 +19385,6 @@ class ApplicationWindow(QMainWindow):
                                 linewidth=self.qmc.BTdeltalinewidth,linestyle=self.qmc.BTdeltalinestyle,drawstyle=self.qmc.BTdeltadrawstyle,color=cl)
                         first_profile = False
                     except Exception as e:
-#                        import traceback
-#                        traceback.print_exc(file=sys.stdout)
                         _, _, exc_tb = sys.exc_info()
                         aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " rankingReport() {0}").format(str(e)),exc_tb.tb_lineno)
                 
@@ -19629,8 +19525,6 @@ class ApplicationWindow(QMainWindow):
                         try:
                             rd = self.profileRankingData(p)
                         except Exception as e:
-        #                        import traceback
-        #                        traceback.print_exc(file=sys.stdout)
                             _, _, exc_tb = sys.exc_info()
                             aw.qmc.adderror((QApplication.translate("Error Message","Exception (probably due to an empty profile):",None) + " rankingReport() {0}").format(str(e)),exc_tb.tb_lineno)
                             i += 1   #avoid a blank line
@@ -19699,8 +19593,6 @@ class ApplicationWindow(QMainWindow):
                         if aw.qmc.backgroundpath:
                             aw.loadbackground(aw.qmc.backgroundpath)
                 except Exception as e:
-#                    import traceback
-#                    traceback.print_exc(file=sys.stdout)
                     _, _, exc_tb = sys.exc_info()
                     aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " rankingReport() {0}").format(str(e)),exc_tb.tb_lineno)
             
@@ -19792,9 +19684,7 @@ class ApplicationWindow(QMainWindow):
                                 rd["cupping"],
                                 ])
                         except Exception as e:
-#                            import traceback
-#                            traceback.print_exc(file=sys.stdout)
-                            pass
+                            aw.logger.exception("Error generating rankingCSVReport")
                     # close file
                     outfile.close()
                 except Exception as e:
@@ -19927,9 +19817,7 @@ class ApplicationWindow(QMainWindow):
                                 ws['P{0}'.format(c)] = rd["cupping"]
                                 ws['P{0}'.format(c)].number_format = "0.00"          
                         except Exception as e:
-#                            import traceback
-#                            traceback.print_exc(file=sys.stdout)
-                            pass
+                            aw.logger.exception("Error generating rankingExcelReport")
                     # write trailer
                     if c > 1:
                         ws['A{0}'.format(c+1)] = u(QApplication.translate("HTML Report Template", "AVG", None))
@@ -20210,8 +20098,6 @@ class ApplicationWindow(QMainWindow):
                 if f:
                     f.close()
         except Exception as e:
-#                import traceback
-#                traceback.print_exc(file=sys.stdout)
                 _, _, exc_tb = sys.exc_info()
                 aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " htmlReport() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -20734,8 +20620,6 @@ class ApplicationWindow(QMainWindow):
                     BT += self.calcAUC(rtbt,timex,temp2,i)
                     delta += self.calcAUC(rtbt,timex,temp1,i,temp2)
             except Exception as e:
-#                import traceback
-#                traceback.print_exc(file=sys.stdout)
                 _, _, exc_tb = sys.exc_info()
                 aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " ts() {0}").format(str(e)),exc_tb.tb_lineno)
             return int(round(delta/60.)), int(round(ET/60.)), int(round(BT/60.))
@@ -21172,8 +21056,6 @@ class ApplicationWindow(QMainWindow):
             else:
                 self.sendmessage(QApplication.translate("Message","Cancelled", None))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " fileLoad() {0}").format(str(ex)),exc_tb.tb_lineno)
         
@@ -21327,9 +21209,7 @@ class ApplicationWindow(QMainWindow):
                 if foreground_profile_path or background_profile_path:
                     aw.qmc.redraw(recomputeAllDeltas=True)
         except Exception:
-            pass
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
+            aw.logger.exception("Error switching")
 
     def flavorchart(self):
         self.hideControls()
@@ -21529,8 +21409,6 @@ class ApplicationWindow(QMainWindow):
         except ValueError as ex:
             aw.qmc.adderror((QApplication.translate("Error Message","Value Error:", None) + " importK202(): {0}").format(str(ex)))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importK202() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -21610,8 +21488,6 @@ class ApplicationWindow(QMainWindow):
         except ValueError as ex:
             aw.qmc.adderror((QApplication.translate("Error Message","Value Error:", None) + " importK204(): {0}").format(str(ex)))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importK204() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -21743,8 +21619,6 @@ class ApplicationWindow(QMainWindow):
         except ValueError as ex:
             aw.qmc.adderror((QApplication.translate("Error Message","Value Error:", None) + " importPilot(): {0}").format(str(ex)))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importPilot() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -21886,8 +21760,6 @@ class ApplicationWindow(QMainWindow):
         except ValueError as ex:
             aw.qmc.adderror((QApplication.translate("Error Message","Value Error:", None) + " self.importBullet(): {0}").format(str(ex)))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " self.importBullet() {0}").format(str(ex)),exc_tb.tb_lineno)
         
@@ -21953,8 +21825,6 @@ class ApplicationWindow(QMainWindow):
         except ValueError as ex:
             aw.qmc.adderror((QApplication.translate("Error Message","Value Error:", None) + " importHH506RA(): {0}").format(str(ex)))
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importHH506RA() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -24117,9 +23987,7 @@ class HUDDlg(ArtisanDialog):
                 aw.qmc.resetlines()
                 self.redraw_enabled_math_curves()
         except:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
-            pass
+            aw.logger.exception("Error in polyfit")
 
     def interpolation(self):
         mode = str(self.interpComboBox.currentText())
@@ -24986,9 +24854,7 @@ class equDataDlg(ArtisanDialog):
                 header.setSectionResizeMode(len(columns) - 1, QHeaderView.Stretch)
             self.datatable.resizeColumnsToContents()
         except Exception as e:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
-            pass
+            aw.logger.exception("Error creating datatable")
             
 ########################################################################################
 #####################  RECENT ROAST POPUP  #############################################
@@ -25962,8 +25828,6 @@ class editGraphDlg(ArtisanDialog):
                     )
                 aw.addRecentRoast(rr)
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " addRecentRoast(): {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -31679,8 +31543,6 @@ class modbusport(object):
             libtime.sleep(.3) # avoid possible hickups on startup
         except Exception as ex:
             self.disconnect()
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Modbus Error:",None) + " writeCoils() {0}").format(str(ex)),exc_tb.tb_lineno)
         finally:
@@ -31725,8 +31587,6 @@ class modbusport(object):
             self.master.write_register(int(register),int(value),unit=int(slave))
             libtime.sleep(.03) # avoid possible hickups on startup
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             self.disconnect()
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Modbus Error:",None) + " writeSingleRegister() {0}").format(str(ex)),exc_tb.tb_lineno)
@@ -31743,8 +31603,6 @@ class modbusport(object):
             self.master.mask_write_register(int(register),int(and_mask),int(or_mask),unit=int(slave))
             libtime.sleep(.03)
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             self.disconnect()
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Modbus Error:",None) + " writeMask() {0}").format(str(ex)),exc_tb.tb_lineno)
@@ -31821,9 +31679,6 @@ class modbusport(object):
             r = decoder.decode_32bit_float()
             return r
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
-#            self.disconnect()
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Modbus Error:",None) + " readFloat() {0}").format(str(ex)),exc_tb.tb_lineno)
         finally:
@@ -31878,9 +31733,6 @@ class modbusport(object):
                 r = decoder.decode_16bit_uint()
                 return r
         except Exception as ex:
-#            self.disconnect()
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Modbus Error:",None) + " readSingleRegister() {0}").format(str(ex)),exc_tb.tb_lineno)
         finally:
@@ -33035,8 +32887,6 @@ class serialport(object):
                 self.SP.open()
                 libtime.sleep(.2) # avoid possible hickups on startup
         except Exception: #serial.SerialException:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             self.SP.close()
             libtime.sleep(0.7) # on OS X opening a serial port too fast after closing the port get's disabled
             error = QApplication.translate("Error Message","Serial Exception:",None) + QApplication.translate("Error Message","Unable to open serial port",None)
@@ -33261,8 +33111,6 @@ class serialport(object):
                 aw.qmc.hottop_BT = aw.qmc.fromCtoF(aw.qmc.hottop_BT)
             return aw.qmc.hottop_BT,aw.qmc.hottop_ET
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " ser.HOTTOPtemperatures() {0}").format(str(ex)),exc_tb.tb_lineno)
             return -1,-1
@@ -34050,8 +33898,6 @@ class serialport(object):
                 p.close()
             return serial,port
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)            
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " getFirstMatchingPhidget() {0}").format(str(ex)),exc_tb.tb_lineno)
             return None,None,False
@@ -34229,8 +34075,6 @@ class serialport(object):
             else:
                 return -1,-1
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             try:
                 if self.PhidgetIRSensor and self.PhidgetIRSensor.getAttached():
                     self.PhidgetIRSensor.close()
@@ -34396,8 +34240,6 @@ class serialport(object):
             else:
                 return -1,-1
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             try:
                 if self.PhidgetTemperatureSensor and self.PhidgetTemperatureSensor[0].getAttached():
                     self.PhidgetTemperatureSensor[0].close()
@@ -34607,8 +34449,6 @@ class serialport(object):
             else:
                 return -1,-1
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             try:
                 if self.PhidgetBridgeSensor and self.PhidgetBridgeSensor[0].getAttached():
                     self.PhidgetBridgeSensor[0].close()
@@ -35064,8 +34904,6 @@ class serialport(object):
             else:
                 return -1,-1
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             try:
                 if self.PhidgetIO and self.PhidgetIO[0].getAttached():
                     self.PhidgetIO[0].close()
@@ -35226,8 +35064,6 @@ class serialport(object):
                     pass
             return probe1, probe2
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             try:
                 YAPI.FreeAPI()
                 self.YOCTOsensor = None
@@ -38533,8 +38369,6 @@ class DeviceAssignmentDlg(ArtisanDialog):
                         self.devicetable.setCellWidget(i,9,Curve1visibilityComboBox)
                         self.devicetable.setCellWidget(i,10,Curve2visibilityComboBox)
                     except Exception as e:
-#                        import traceback
-#                        traceback.print_exc(file=sys.stdout)
                         pass
                 self.devicetable.resizeColumnsToContents()
                 header = self.devicetable.horizontalHeader()
@@ -38685,8 +38519,6 @@ class DeviceAssignmentDlg(ArtisanDialog):
             aw.qmc.resetlinecountcaches()
             aw.qmc.redraw(recomputeAllDeltas=False)
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + "delextradevice(): {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -41083,8 +40915,6 @@ class AlarmDlg(ArtisanDialog):
             aw.qmc.alarmstrings = alarms["alarmstrings"]
             self.createalarmtable()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importalarmsJSON() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -42031,8 +41861,6 @@ class PXRpidDlgControl(ArtisanDialog):
                 self.status.showMessage(mssg,5000)
                 aw.qmc.adderror(mssg)
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " setONOFFstandby() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -43247,8 +43075,6 @@ class PXG4pidDlgControl(ArtisanDialog):
                 aw.fujipid.PXG4[soakkey][0] = aw.qmc.stringtoseconds(segments[soakkey])
             self.createsegmenttable()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " loadPIDJSON() {0}").format(str(ex)),exc_tb.tb_lineno)
 
@@ -44352,8 +44178,6 @@ class PXG4pidDlgControl(ArtisanDialog):
             else:
                 self.status.showMessage(QApplication.translate("StatusBar","No data received",None),5000)
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " setONOFFstandby() {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -45736,8 +45560,6 @@ class PID_DlgControl(ArtisanDialog):
             aw.pidcontrol.svSoaks = rampsoaks["svSoaks"]
             self.setrampsoaks()
         except Exception as ex:
-#            import traceback
-#            traceback.print_exc(file=sys.stdout)
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " importrampsoaksJSON() {0}").format(str(ex)),exc_tb.tb_lineno)
     
@@ -45961,9 +45783,7 @@ class PIDcontrol(object):
                     slidernr = aw.pidcontrol.pidNegativeTarget - 1
                     aw.qmc.temporarymovenegativeslider = (slidernr,cool)
             except Exception as e:
-    #            import traceback
-    #            traceback.print_exc(file=sys.stdout)
-                pass
+                aw.logger.exception("Error setting energy")
         self.lastEnergy = v
 
     def conv2celsius(self):

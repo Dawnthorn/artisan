@@ -70,6 +70,10 @@ class AillioR1:
         self.logger.debug('AillioR1.prs')
 
 
+    def sample(self):
+        self.logger.debug('AillioR1.sample')
+
+
     def start(self):
         self.logger.debug('AillioR1.start')
 

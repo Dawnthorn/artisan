@@ -13253,8 +13253,10 @@ class ApplicationWindow(QMainWindow):
                         pass                        
                 elif action == 15: # Aillio Command
                     self.aillioCommand(cmd)
-            except Exception:
+            except Exception as e:
                 aw.logger.exception("Error executing action %d(%s):", action, cmd)
+                _, _, exc_tb = sys.exc_info()
+                aw.qmc.adderror((QApplication.translate("Error Message", "Error:",None) + " executing action() {0}").format(str(e)),exc_tb.tb_lineno)
 
 
     def aillioCommand(self, cmd):

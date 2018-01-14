@@ -7,9 +7,9 @@ Oversampling=true
 buttonactions=15, 15, 15, 15, 15, 15, 15, 15
 buttonactionstrings=,,,,,,,
 buttonvisibility=true, true, true, true, true, false, true, true
-extrabuttonactions=15, 15, 15
-extrabuttonactionstrings=on, off, ,
-xextrabuttonactions=0, 15
+extrabuttonactions=13, 13, 13
+extrabuttonactionstrings=on, off, sample,
+xextrabuttonactions=0, 13
 xextrabuttonactionstrings=, start
 
 [Device]

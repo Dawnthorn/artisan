@@ -213,7 +213,7 @@ from unidecode import unidecode
 
 from artisanlib.weblcds import startWeb, stopWeb
 from artisanlib.hottop import startHottop, stopHottop, getHottop, takeHottopControl, releaseHottopControl, setHottop
-from artisanlib.aillio import AillioR1
+from artisanlib.aillio.bullet_r1 import BulletR1
 
 # maps Artisan thermocouple types (order as listed in the menu; see phidget1048_types) to Phdiget thermocouple types
 # 1 => k-type (default)
@@ -5320,6 +5320,12 @@ class tgraphcanvas(FigureCanvas):
                 seconds = int(timeparts[0])*60
                 seconds -= int(timeparts[1])
                 return seconds    #return negative number
+
+    def convertC(self, celsius):
+        if self.mode == 'C':
+            return celsius
+        else:
+            return self.fromCtoF(celsius)
 
     def fromFtoC(self,Ffloat):
         if Ffloat in [-1,None]:
@@ -32152,7 +32158,7 @@ class serialport(object):
         self.externalprogram = "test.py"
         self.externaloutprogram = "out.py" # this program is called with arguments <ET>,<BT>,<ETB>,<BTB> values on each sampling
         self.externaloutprogramFlag = False # if true the externaloutprogram will be called on each sample()
-        self.R1 = AillioR1(self.logger)
+        self.R1 = BulletR1(self.logger)
 
 #####################  FUNCTIONS  ############################
     ######### functions used by Fuji PIDs
@@ -32602,7 +32608,7 @@ class serialport(object):
     def R1_BTET(self):
         tx = aw.qmc.timeclock.elapsed()/1000.
         v1,v2 = self.R1.environmentAndBeanTemperature()
-        return tx,v1,v2
+        return tx,aw.qmc.convertC(v1),aw.qmc.convertC(v2)
 
     def R1_HeaterAndFanSpeed(self):
         tx = aw.qmc.timeclock.elapsed()/1000.

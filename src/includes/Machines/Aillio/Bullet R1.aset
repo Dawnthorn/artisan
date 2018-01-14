@@ -4,13 +4,13 @@ ExtraEventSamplingDelay=1000
 Oversampling=true
 
 [DefaultButtons]
-buttonactions=0, 0, 0, 0, 0, 0, 0, 0
-buttonactionstrings=, , , , , , "heater(0);fan(10);drum(1);heater(0);solenoid(1);stirrer(1)", 
+buttonactions=15, 15, 15, 15, 15, 15, 15, 15
+buttonactionstrings=,,,,,,,
 buttonvisibility=true, true, true, true, true, false, true, true
-extrabuttonactions=0, 0, 0
-extrabuttonactionstrings=, , 
-xextrabuttonactions=0, 0
-xextrabuttonactionstrings=, 
+extrabuttonactions=15, 15, 15
+extrabuttonactionstrings=on, off, ,
+xextrabuttonactions=0, 15
+xextrabuttonactionstrings=, start
 
 [Device]
 Controlbuttonflag=true
@@ -44,14 +44,14 @@ buttonpalette_shortcuts=true
 buttonpalettemaxlen=6, 6, 6, 14, 14, 14, 14, 14, 14, 14
 extraeventbuttoncolor=#997c5f, #b79f87, #fff0a3, #fff8d4, #688a62, #87b190, #2175c3, #4691cf, #7c0010, #ab3444
 extraeventbuttontextcolor=#ffffff, #ffffff, black, black, #ffffff, #ffffff, #ffffff, #ffffff, #ffffff, #ffffff
-extraeventsactions=10, 10, 10, 10, 10, 10, 9, 9, 8, 8
-extraeventsactionstrings=motor(1), motor(0), solenoid(1), solenoid(0), stirrer(1), stirrer(0), , , , 
+extraeventsactions=
+extraeventsactionstrings=
 extraeventsbuttonsflag=0
-extraeventsdescriptions=Motor On, Motor Off, Door Open, Door Close, Stirrer On, Stirrer Off, , , , 
-extraeventslabels=MOTOR\nON, MOTOR\nOFF, DOOR\nOPEN, DOOR\nCLOSE, STIRRER\nON, STIRRER\nOFF, \\t\n+10, \\t\n-10, \\t\n+10, \\t\n-10
-extraeventstypes=4, 4, 4, 4, 4, 4, 5, 5, 8, 8
-extraeventsvalues=1, 1, 1, 1, 1, 1, 2, -2, 2, -2
-extraeventsvisibility=1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+extraeventsdescriptions=
+extraeventslabels=
+extraeventstypes=
+extraeventsvalues=
+extraeventsvisibility=
 
 [Quantifiers]
 clusterEventsFlag=true

@@ -28334,7 +28334,8 @@ class EventsDlg(ArtisanDialog):
                        QApplication.translate("ComboBox", "Fuji Command",None),
                        QApplication.translate("ComboBox", "PWM Command",None),
                        QApplication.translate("ComboBox", "VOUT Command",None),
-                       QApplication.translate("ComboBox", "IO Command",None)]
+                       QApplication.translate("ComboBox", "IO Command",None),
+                       QApplication.translate("ComboBox", "Aillio Command",None)]
         self.E1action = QComboBox()
         self.E1action.setToolTip(QApplication.translate("Tooltip", "Action Type", None))
         self.E1action.setFocusPolicy(Qt.NoFocus)
@@ -28608,7 +28609,8 @@ class EventsDlg(ArtisanDialog):
                        QApplication.translate("ComboBox", "p-i-d",None),
                        QApplication.translate("ComboBox", "Fuji Command",None),
                        QApplication.translate("ComboBox", "PWM Command",None),
-                       QApplication.translate("ComboBox", "VOUT Command",None)]
+                       QApplication.translate("ComboBox", "VOUT Command",None),
+                       QApplication.translate("ComboBox", "Aillio Command",None)]
         self.CHARGEbutton = QCheckBox(QApplication.translate("CheckBox", "CHARGE",None))
         self.CHARGEbutton.setChecked(bool(aw.qmc.buttonvisibility[0]))
         self.CHARGEbuttonActionType = QComboBox()
@@ -29398,7 +29400,8 @@ class EventsDlg(ArtisanDialog):
                                      QApplication.translate("ComboBox","p-i-d",None),
                                      QApplication.translate("ComboBox","Fuji Command",None),
                                      QApplication.translate("ComboBox","PWM Command",None),
-                                     QApplication.translate("ComboBox","VOUT Command",None)])
+                                     QApplication.translate("ComboBox","VOUT Command",None),
+                                     QApplication.translate("ComboBox","Aillio Command",None)])
             act = aw.extraeventsactions[i]
             if act > 7:
                 act = act - 1
@@ -32743,16 +32746,13 @@ class serialport(object):
         return tx,v1,v2        
 
     def R1_BTET(self):
-        state = self.R1.getstate()
-        pass
+        return self.R1.beanAndEnvironmentalTemp()
 
-    def R1_HF(self):
-        state = self.R1.getstate()
-        pass
+    def R1_HeaterAndFanSpeed(self):
+        return self.R1.heaterAndFanSpeed()
 
-    def R1_DS(self):
-        state = self.R1.getstate()
-        pass
+    def R1_ModeAndDrumSpeed(self):
+        return self.R1.modeAndDrumSpeed()
 
     def HOTTOP_BTET(self):
         tx = aw.qmc.timeclock.elapsed()/1000.

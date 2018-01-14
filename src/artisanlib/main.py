@@ -51,6 +51,8 @@ import numpy
 import requests
 import subprocess
 import shlex
+import logging
+import tempfile
 
 if sys.version < '3':
     import urlparse, urllib # @UnresolvedImport @UnusedImport
@@ -204,18 +206,6 @@ import socket
 #from pymodbus.constants import Defaults
 #from pymodbus.transaction import ModbusSocketFramer
 #from pymodbus.factory import ClientDecoder
-
-
-
-#---------------------------------------------------------------------------# 
-# configure the service logging
-#---------------------------------------------------------------------------# 
-#import logging
-#logging.basicConfig()
-#log = logging.getLogger()
-#log.setLevel(logging.DEBUG)
-#---------------------------------------------------------------------------# 
-
 
 import json
 import unicodedata # @UnresolvedImport
@@ -9988,7 +9978,7 @@ class Athreadserver(QWidget):
 
 class ApplicationWindow(QMainWindow):
     def __init__(self, parent = None):
-    
+        self.initLogging()
         self.superusermode = False
 
         self.defaultAppearance = None
@@ -10100,7 +10090,7 @@ class ApplicationWindow(QMainWindow):
         self.minieventsflag = 0   #minieditor flag
 
         #create a serial port object (main ET BT device)
-        self.ser = serialport()
+        self.ser = serialport(self.logger)
         #create a modbus port object (main modbus device)
         self.modbus = modbusport()
         #create scale port object
@@ -11690,6 +11680,16 @@ class ApplicationWindow(QMainWindow):
 
 
 ###################################   APPLICATION WINDOW (AW) FUNCTIONS  #####################################    
+    def initLogging(self):
+        self.logger = logging.getLogger('artisian')
+        self.logger.setLevel(logging.DEBUG)
+        self.logFilePath = os.path.join(tempfile.gettempdir(), 'artisan.log')
+        fileHandler = logging.FileHandler(self.logFilePath)
+        formatter = logging.Formatter('[%(asctime)s] %(message)s')
+        fileHandler.setFormatter(formatter)
+        self.logger.addHandler(fileHandler)
+        self.logger.info("Artisan started")
+
 
     def createRecentRoast(self,title,beans,weightIn,weightOut,weightUnit,volumeIn,volumeOut,volumeUnit,
             densityWeight,densityWeightUnit,densityVolume,densityVolumeUnit, beanSize,
@@ -13303,10 +13303,17 @@ class ApplicationWindow(QMainWindow):
                             aw.ser.phidgetVOUTsetVOUT(int(c),float(v))
                     except Exception:
                         pass                        
+                elif action == 15: # Aillio Command
+                    self.aillioCommand(cmd)
             except Exception:
-                pass
-                
-                
+                aw.logger.exception("Error executing action %d(%s):", action, cmd)
+
+
+    def aillioCommand(self, cmd):
+        method = getattr(self.ser.R1, cmd)
+        method()
+
+
     def calc_env(self):
         # we try to set the users standard environment, replacing the one pointing to the restrictive python build in Artisan
         my_env = os.environ.copy()
@@ -14791,7 +14798,7 @@ class ApplicationWindow(QMainWindow):
     def addSerialPort(self):
         n = len(self.qmc.extradevices) - 1
         self.extraser = self.extraser[:n]
-        self.extraser.append(serialport())
+        self.extraser.append(serialport(self.logger))
         self.extracomport = self.extracomport[:n]
         self.extracomport.append("COM1")
         self.extrabaudrate = self.extrabaudrate[:n]
@@ -17436,7 +17443,7 @@ class ApplicationWindow(QMainWindow):
                 self.extraser = [None]*lenextraports
                 #populate aw.extraser
                 for i in range(lenextraports):
-                    self.extraser[i] = serialport()
+                    self.extraser[i] = serialport(self.logger)
                     self.extraser[i].comport = str(self.extracomport[i])
                     self.extraser[i].baudrate = self.extrabaudrate[i]
                     self.extraser[i].bytesize = self.extrabytesize[i]
@@ -29902,8 +29909,7 @@ class EventsDlg(ArtisanDialog):
                 #save quantifiers
                 aw.updateSlidersProperties() # set visibility and event names on slider widgets
         except Exception as e:
-            #import traceback
-            #traceback.print_exc(file=sys.stdout)
+            aw.logger.exception("Error updating types")
             _, _, exc_tb = sys.exc_info()
             aw.qmc.adderror((QApplication.translate("Error Message", "Exception:",None) + " updatetypes(): {0}").format(str(e)),exc_tb.tb_lineno)
 
@@ -32123,7 +32129,8 @@ class colorport(extraserialport):
 class serialport(object):
     """ this class handles the communications with all the devices"""
 
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         #default initial settings. They are changed by settingsload() at initiation of program acording to the device chosen
         self.comport = "COM4"      #NOTE: this string should not be translated. It is an argument for lib Pyserial
         self.baudrate = 9600
@@ -32281,14 +32288,14 @@ class serialport(object):
                                    self.VOLTCRAFTPL125T4,     #77
                                    self.VOLTCRAFTPL125T4_34,  #78
                                    self.R1_BTET,              #79
-                                   self.R1_HF,                #80
-                                   self.R1_DS,                #81
+                                   self.R1_HeaterAndFanSpeed, #80
+                                   self.R1_ModeAndDrumSpeed,  #81
                                    ]
         #string with the name of the program for device #27
         self.externalprogram = "test.py"
         self.externaloutprogram = "out.py" # this program is called with arguments <ET>,<BT>,<ETB>,<BTB> values on each sampling
         self.externaloutprogramFlag = False # if true the externaloutprogram will be called on each sample()
-        self.R1 = AillioR1()
+        self.R1 = AillioR1(self.logger)
 
 #####################  FUNCTIONS  ############################
     ######### functions used by Fuji PIDs
@@ -37326,7 +37333,7 @@ class comportDlg(ArtisanDialog):
             aw.extraser = [None]*ser_ports
             #load the settings for the extra serial ports found
             for i in range(ser_ports):
-                aw.extraser[i] = serialport()
+                aw.extraser[i] = serialport(aw.logger)
                 aw.extraser[i].comport = str(aw.extracomport[i])
                 aw.extraser[i].baudrate = aw.extrabaudrate[i]
                 aw.extraser[i].bytesize = aw.extrabytesize[i]

@@ -4,7 +4,9 @@ import construct
 import usb1
 from usb_transfer_exception import UsbTransferException
 
-class BulletR1:
+class BulletR1(object):
+    instance = None
+
     USB_VID = 0x0483
     USB_PID = 0x5741
     USB_INTERFACE = 0x1
@@ -28,8 +30,8 @@ class BulletR1:
             beanTemperature = -1,
             ror = -1,
             drumTemperature = -1,
-            fan = -1,
-            power = -1,
+            fanSpeed = -1,
+            heaterPower = -1,
             drumSpeed = -1,
             index = -1,
             canary = -1,
@@ -42,8 +44,8 @@ class BulletR1:
             'ror' / construct.Float32l,
             'drumTemperature' / construct.Float32l,
             'unknown1' / construct.Array(14, construct.Byte),
-            'fan' / construct.Int8ul,
-            'power' / construct.Int8ul,
+            'fanSpeed' / construct.Int8ul,
+            'heaterPower' / construct.Int8ul,
             'drumSpeed' / construct.Int8ul,
             'unknown2' / construct.Int8ul,
             'index' / construct.Int16ul,
@@ -64,6 +66,16 @@ class BulletR1:
         self.close()
 
 
+    def __new__(cls, logger):
+        if not BulletR1.instance:
+            BulletR1.instance = super(BulletR1, cls).__new__(cls)
+        return BulletR1.instance
+
+
+    def beanTemperature(self):
+        return self.latestStats.beanTemperature
+
+
     def close(self):
         if self.usbHandle is not None:
             self.usbHandle.releaseInterface(self.USB_INTERFACE)
@@ -77,9 +89,13 @@ class BulletR1:
         self.untilMode(self.MODE_COOLING)
 
 
-    def environmentAndBeanTemperature(self):
-        self.logger.debug('BulletR1.environmentAndBeanTemperature')
-        return self.latestStats.drumTemperature, self.latestStats.beanTemperature
+    def drumSpeed(self):
+        return self.latestStats.drumSpeed
+
+
+    def drumTemperature(self):
+        return self.latestStats.drumTemperature
+
 
     def fanDown(self):
         self.logger.debug('BulletR1.fanUp')
@@ -92,7 +108,7 @@ class BulletR1:
 
 
     def fanSpeed(self):
-        return self.latestStats.fan
+        return self.latestStats.fanSpeed
 
 
     def fanUp(self):
@@ -104,9 +120,8 @@ class BulletR1:
             self.waitForTransfers()
 
 
-    def heaterAndFanSpeed(self):
-        self.logger.debug('BulletR1.heaterAndFanSpeed')
-        return self.latestStats.power, self.latestStats.fan
+    def heaterPower(self):
+        return self.latestStats.heaterPower
 
 
     def loadBeans(self):
@@ -116,11 +131,6 @@ class BulletR1:
 
     def mode(self):
         return self.latestStatus.mode
-
-
-    def modeAndDrumSpeed(self):
-        self.logger.debug('BulletR1.modeAndDrumSpeed')
-        return self.latestStatus.mode, self.latestStats.drum
 
 
     def off(self):

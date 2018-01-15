@@ -32170,7 +32170,7 @@ class serialport(object):
                                    self.VOLTCRAFTPL125T4,     #77
                                    self.VOLTCRAFTPL125T4_34,  #78
                                    self.R1_BTET,              #79
-                                   self.R1_HeaterAndFanSpeed, #80
+                                   self.R1_FanAndHeaterSpeed, #80
                                    self.R1_ModeAndDrumSpeed,  #81
                                    ]
         #string with the name of the program for device #27
@@ -32626,17 +32626,20 @@ class serialport(object):
 
     def R1_BTET(self):
         tx = aw.qmc.timeclock.elapsed()/1000.
-        v1,v2 = self.R1.environmentAndBeanTemperature()
+        v1 = self.R1.drumTemperature()
+        v2 = self.R1.beanTemperature()
         return tx,aw.qmc.convertC(v1),aw.qmc.convertC(v2)
 
-    def R1_HeaterAndFanSpeed(self):
+    def R1_FanAndHeaterSpeed(self):
         tx = aw.qmc.timeclock.elapsed()/1000.
-        v1,v2 = self.R1.heaterAndFanSpeed()
+        v1 = self.R1.fanSpeed()
+        v2 = self.R1.heaterPower()
         return tx,v1,v2
 
     def R1_ModeAndDrumSpeed(self):
         tx = tx = aw.qmc.timeclock.elapsed()/1000.
-        v1,v2 =self.R1.modeAndDrumSpeed()
+        v1 = self.R1.mode()
+        v2 = self.R1.drumSpeed()
         return tx,v1,v2
 
     def HOTTOP_BTET(self):

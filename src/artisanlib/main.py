@@ -12833,6 +12833,8 @@ class ApplicationWindow(QMainWindow):
                         action = action + 1 # skip the 11 p-i-d action
                         if action == 15:
                             action = 6 # map IO Command back
+                        if action == 16:
+                            action = 15
             # after adaption: (see eventaction)
                 value = (self.eventsliderfactors[n] * self.eventslidervalues[n]) + self.eventslideroffsets[n]
                 if action != 14: # only for VOUT Commands we keep the floats
@@ -12842,7 +12844,7 @@ class ApplicationWindow(QMainWindow):
                 else:
                     cmd = self.eventslidercommands[n]
                     cmd = cmd.format(value)
-                self.eventaction(action,cmd)
+                self.eventaction(action,cmd,value)
             except Exception as e:
                 _, _, exc_tb = sys.exc_info()
                 aw.qmc.adderror((QApplication.translate("Error Message","Exception:",None) + " fireslideraction() {0}").format(str(e)),exc_tb.tb_lineno)
@@ -12972,7 +12974,7 @@ class ApplicationWindow(QMainWindow):
     #actions: 0 = None; 1= Serial Command; 2= Call program; 3= Multiple Event; 4= Modbus Command; 5=DTA Command; 6=IO Command (Phidgets IO); 
     #         7= Call Program with argument (slider action); 8= HOTTOP Heater; 9= HOTTOP Main Fan; 10= HOTTOP Cooling Fan; 11= p-i-d; 12= Fuji Command;
     #         13= PWM Command; 14 VOUT Command
-    def eventaction(self,action,cmd):
+    def eventaction(self,action,cmd,*args):
         if action:
             try:
                 cmd_str = u(cmd)
@@ -13274,16 +13276,16 @@ class ApplicationWindow(QMainWindow):
                     except Exception:
                         pass                        
                 elif action == 15: # Aillio Command
-                    self.aillioCommand(cmd)
+                    self.aillioCommand(cmd,*args)
             except Exception as e:
                 aw.logger.exception("Error executing action %d(%s):", action, cmd)
                 _, _, exc_tb = sys.exc_info()
                 aw.qmc.adderror((QApplication.translate("Error Message", "Error:",None) + " executing action() {0}").format(str(e)),exc_tb.tb_lineno)
 
 
-    def aillioCommand(self, cmd):
+    def aillioCommand(self, cmd, *args):
         method = getattr(self.ser.R1, cmd)
-        method()
+        method(*args)
 
 
     def calc_env(self):
@@ -17574,6 +17576,7 @@ class ApplicationWindow(QMainWindow):
             res = True
             
         except Exception:
+            aw.logger.exception("Error loading machine settings")
             res = False
             _, _, exc_tb = sys.exc_info()
             QMessageBox.information(aw,QApplication.translate("Error Message", "Error",None),QApplication.translate("Error Message", "Exception:",None) + "  settingsLoad()  @line " + str(exc_tb.tb_lineno))

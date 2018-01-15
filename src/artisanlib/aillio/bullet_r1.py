@@ -5,21 +5,18 @@ import usb1
 from usb_transfer_exception import UsbTransferException
 
 class BulletR1:
-    AILLIO_USB_VID = 0x0483
-    AILLIO_USB_PID = 0x5741
-    AILLIO_USB_INTERFACE = 0x1
-    AILLIO_USB_READ_ENDPOINT = 0x1
-    AILLIO_USB_WRITE_ENDPOINT = 0x3
+    USB_VID = 0x0483
+    USB_PID = 0x5741
+    USB_INTERFACE = 0x1
+    USB_READ_ENDPOINT = 0x1
+    USB_WRITE_ENDPOINT = 0x3
 
-    TRANSFER_STATUS_TO_STRING = {
-        usb1.TRANSFER_COMPLETED: 'completed',
-        usb1.TRANSFER_ERROR: 'error',
-        usb1.TRANSFER_TIMED_OUT: 'timed out',
-        usb1.TRANSFER_CANCELLED: 'cancelled',
-        usb1.TRANSFER_STALL: 'stalled',
-        usb1.TRANSFER_NO_DEVICE: 'no device',
-        usb1.TRANSFER_OVERFLOW: 'overflow',
-    }
+    MODE_OFF = 0x0
+    MODE_PREHEATING = 0x2
+    MODE_LOAD_BEANS = 0x4
+    MODE_ROASTING = 0x6
+    MODE_COOLING = 0x8
+    MODE_SHUT_DOWN = 0x9
 
     def __init__(self, logger):
         self.logger = logger
@@ -28,17 +25,17 @@ class BulletR1:
         self.usbHandle = None
         self.transferList = []
         self.latestStats = construct.Container(
-            beanTemperature = 0.0,
-            ror = 0.0,
-            drumTemperature = 0.0,
-            fan = 0,
-            power = 0,
-            drumSpeed = 0,
-            index = 0,
-            canary = 0,
+            beanTemperature = -1,
+            ror = -1,
+            drumTemperature = -1,
+            fan = -1,
+            power = -1,
+            drumSpeed = -1,
+            index = -1,
+            canary = -1,
         )
         self.latestStatus = construct.Container(
-            mode = 0,
+            mode = -1,
         )
         self.statsStruct = construct.Struct(
             'beanTemperature' / construct.Float32l,
@@ -69,24 +66,66 @@ class BulletR1:
 
     def close(self):
         if self.usbHandle is not None:
-            self.usbHandle.releaseInterface(self.AILLIO_USB_INTERFACE)
+            self.usbHandle.releaseInterface(self.USB_INTERFACE)
             self.usbHandle.close()
         if self.usbContext is not None:
             self.usbContext.close()
+
+
+    def cool(self):
+        self.logger.debug('BulletR1.cool')
+        self.untilMode(self.MODE_COOLING)
 
 
     def environmentAndBeanTemperature(self):
         self.logger.debug('BulletR1.environmentAndBeanTemperature')
         return self.latestStats.drumTemperature, self.latestStats.beanTemperature
 
+    def fanDown(self):
+        self.logger.debug('BulletR1.fanUp')
+        currentSpeed = self.fanSpeed()
+        self.writePacket(bytearray([0x31, 0x02, 0xaa, 0xaa]), "fanUp")
+        self.waitForTransfers()
+        while currentSpeed == self.fanSpeed():
+            self.requestStats()
+            self.waitForTransfers()
+
+
+    def fanSpeed(self):
+        return self.latestStats.fan
+
+
+    def fanUp(self):
+        self.logger.debug('BulletR1.fanUp')
+        currentSpeed = self.fanSpeed()
+        self.writePacket(bytearray([0x31, 0x01, 0xaa, 0xaa]), "fanUp")
+        while currentSpeed == self.fanSpeed():
+            self.requestStats()
+            self.waitForTransfers()
+
+
     def heaterAndFanSpeed(self):
         self.logger.debug('BulletR1.heaterAndFanSpeed')
         return self.latestStats.power, self.latestStats.fan
 
 
+    def loadBeans(self):
+        self.logger.debug('BulletR1.loadBeans')
+        self.untilMode(self.MODE_LOAD_BEANS)
+
+
+    def mode(self):
+        return self.latestStatus.mode
+
+
     def modeAndDrumSpeed(self):
         self.logger.debug('BulletR1.modeAndDrumSpeed')
         return self.latestStatus.mode, self.latestStats.drum
+
+
+    def off(self):
+        self.logger.debug('BulletR1.off')
+        self.untilMode(self.MODE_OFF)
 
 
     def on(self):
@@ -98,27 +137,35 @@ class BulletR1:
         if self.usbHandle is not None:
             return
         self.usbContext = usb1.USBContext()
-        self.usbHandle = self.usbContext.openByVendorIDAndProductID(self.AILLIO_USB_VID, self.AILLIO_USB_PID, skip_on_error=True)
+        self.usbHandle = self.usbContext.openByVendorIDAndProductID(self.USB_VID, self.USB_PID, skip_on_error=True)
         if self.usbHandle is None:
-            raise Exception("BulletR1 device not found at %x:%x." % (self.AILLIO_USB_VID, self.AILLIO_USB_PID))
+            raise Exception("BulletR1 device not found at %x:%x." % (self.USB_VID, self.USB_PID))
             return
         self.logger.info("BulletR1 found.")
-        if self.usbHandle.kernelDriverActive(self.AILLIO_USB_INTERFACE):
-            self.usbHandle.detachKernelDriver(self.AILLIO_USB_INTERFACE)
-        self.usbHandle.claimInterface(self.AILLIO_USB_INTERFACE)
+        if self.usbHandle.kernelDriverActive(self.USB_INTERFACE):
+            self.usbHandle.detachKernelDriver(self.USB_INTERFACE)
+        self.usbHandle.claimInterface(self.USB_INTERFACE)
+
+
+    def preheat(self):
+        self.logger.debug('BulletR1.preheat')
+        self.untilMode(self.MODE_PREHEATING)
 
 
     def prs(self):
         self.logger.debug('BulletR1.prs')
-        self.writePacket(bytearray([0x30, 0x01, 0x0, 0x0]), "writePrs", self.writePrsCompleted)
-        self.waitForTransfers()
+        currentMode = self.mode()
+        self.writePacket(bytearray([0x30, 0x01, 0x0, 0x0]), "writePrs")
+        while currentMode == self.mode():
+            self.requestStats()
+            self.waitForTransfers()
 
 
     def readPacket(self, length, errorMsg, callback):
         transfer = self.usbHandle.getTransfer()
         transfer.callback = callback
         transfer.errorMsg = errorMsg
-        transfer.setBulk(self.AILLIO_USB_READ_ENDPOINT | usb1.ENDPOINT_IN, length, self.transferCompleted)
+        transfer.setBulk(self.USB_READ_ENDPOINT | usb1.ENDPOINT_IN, length, self.transferCompleted)
         transfer.submit()
         self.transferList.append(transfer)
 
@@ -133,16 +180,36 @@ class BulletR1:
         self.writePacket(bytearray([0x30, 0x03]), "requestStatus", self.statusWriteCompleted)
 
 
+    def roast(self):
+        self.logger.debug('BulletR1.roast')
+        self.untilMode(self.MODE_ROASTING)
+
+
     def sample(self):
         self.logger.debug('BulletR1.sample')
         self.requestStats()
         self.waitForTransfers()
 
 
-    def start(self):
-        self.logger.debug('BulletR1.start')
-        if self.latestStatus.mode == 0:
-            self.prs()
+    def setDrumSpeed(self, speed):
+        self.logger.debug('BulletR1.setDrumSpeed(%d)' % (speed))
+
+
+    def setFanSpeed(self, speed):
+        self.logger.debug('BulletR1.setFanSpeed(%d)' % (speed))
+        if self.fanSpeed() < 0:
+            return
+        if self.mode() != self.MODE_ROASTING:
+            return
+        while self.fanSpeed() != speed:
+            if self.fanSpeed() < speed:
+                self.fanUp()
+            else:
+                self.fanDown()
+
+
+    def setPower(self, power):
+        self.logger.debug('BulletR1.setPower(%d)' % (power))
 
 
     def statsReadReady(self, transfer):
@@ -172,10 +239,6 @@ class BulletR1:
         self.readPacket(64, "statusRead", self.statusReadReady)
 
 
-    def stop(self):
-        self.logger.debug('BulletR1.stop')
-
-
     def toFahrenheit(self, celsius):
         return celsius * 9 / 5 + 32
 
@@ -189,6 +252,11 @@ class BulletR1:
             transfer.callback(transfer)
 
 
+    def untilMode(self, requestedMode):
+        while self.mode() != requestedMode:
+            self.prs()
+
+
     def waitForTransfers(self):
         while any(transfer.isSubmitted() for transfer in self.transferList):
             self.usbContext.handleEvents()
@@ -198,7 +266,7 @@ class BulletR1:
         transfer = self.usbHandle.getTransfer()
         transfer.callback = callback
         transfer.errorMsg = errorMsg
-        transfer.setBulk(self.AILLIO_USB_WRITE_ENDPOINT | usb1.ENDPOINT_OUT, packet, self.transferCompleted)
+        transfer.setBulk(self.USB_WRITE_ENDPOINT | usb1.ENDPOINT_OUT, packet, self.transferCompleted)
         transfer.submit()
         self.transferList.append(transfer)
 

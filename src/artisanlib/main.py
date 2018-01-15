@@ -9277,6 +9277,7 @@ class SampleThread(QThread):
             tx,t1,t2 = aw.extraser[i].devicefunctionlist[aw.qmc.extradevices[i]]()
             return tx,float(t1),float(t2)
         except Exception:
+            aw.logger.exception("Error sampling extra device %s" % (aw.qmc.devices[aw.qmc.extradevices[i]]))
             tx = aw.qmc.timeclock.elapsed()/1000.
             return tx,-1.0,-1.0
 

@@ -2,7 +2,7 @@
 
 import construct
 import usb1
-from usb_transfer_exception import UsbTransferException
+from .usb_transfer_exception import UsbTransferException
 
 class BulletR1(object):
     instance = None

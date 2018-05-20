@@ -1,0 +1,12 @@
+- Install pyenv (https://github.com/pyenv/pyenv)
+- pyenv install 3.6.5
+- hash -r
+- pyenv local
+- pip install pipenv
+- pipenv install
+- pipenv run artisan.py
+
+The reason we install a pyenv version of Python is that if you try and
+install pipenv using the Ubuntu 16.04 pip3, it causes pip3 to stop working
+because of (https://github.com/pypa/pip/issues/5221). This way everything
+works without messing around with any system Python files.

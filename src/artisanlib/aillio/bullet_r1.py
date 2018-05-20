@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 
+if __name__ == '__main__' and __package__ is None:
+    from os import sys, path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 import construct
+import functools
+import time
 import usb1
-from .usb_transfer_exception import UsbTransferException
+from usb_transfer_exception import UsbTransferException
+from packet_repeat_writer import PacketRepeatWriter
 
 class BulletR1(object):
     instance = None
+
+    class ChangeTimeout(Exception):
+        pass
 
     USB_VID = 0x0483
     USB_PID = 0x5741
@@ -20,6 +30,15 @@ class BulletR1(object):
     MODE_COOLING = 0x8
     MODE_SHUT_DOWN = 0x9
 
+    FAN_SPEED_MODES = [MODE_ROASTING, MODE_COOLING]
+    DRUM_SPEED_MODES = [MODE_ROASTING, MODE_COOLING]
+
+    FAN_DOWN_PACKET = bytearray([0x31, 0x02, 0xaa, 0xaa])
+    FAN_UP_PACKET = bytearray([0x31, 0x01, 0xaa, 0xaa])
+    HEATER_DOWN_PACKET = bytearray([0x34, 0x02, 0xaa, 0xaa])
+    HEATER_UP_PACKET = bytearray([0x34, 0x01, 0xaa, 0xaa])
+
+
     def __init__(self, logger):
         self.logger = logger
         self.logger.debug('BulletR1.__init__')
@@ -30,9 +49,9 @@ class BulletR1(object):
             beanTemperature = -1,
             ror = -1,
             drumTemperature = -1,
-            fanSpeed = -1,
-            heaterPower = -1,
-            drumSpeed = -1,
+            fanSpeedLevel = -1,
+            heaterPowerLevel = -1,
+            drumSpeedLevel = -1,
             index = -1,
             canary = -1,
         )
@@ -44,9 +63,9 @@ class BulletR1(object):
             'ror' / construct.Float32l,
             'drumTemperature' / construct.Float32l,
             'unknown1' / construct.Array(14, construct.Byte),
-            'fanSpeed' / construct.Int8ul,
-            'heaterPower' / construct.Int8ul,
-            'drumSpeed' / construct.Int8ul,
+            'fanSpeedLevel' / construct.Int8ul,
+            'heaterPowerLevel' / construct.Int8ul,
+            'drumSpeedLevel' / construct.Int8ul,
             'unknown2' / construct.Int8ul,
             'index' / construct.Int16ul,
             'unknown3' / construct.Array(28, construct.Byte),
@@ -88,9 +107,19 @@ class BulletR1(object):
         self.logger.debug('BulletR1.cool')
         self.untilMode(self.MODE_COOLING)
 
+    
+    def drumSpeedDown(self):
+        self.logger.debug('BulletR1.drumSpeedDown')
+        self.setDrumSpeedLevel(self.drumSpeedLevel() + 1)
 
-    def drumSpeed(self):
-        return self.latestStats.drumSpeed
+
+    def drumSpeedLevel(self):
+        return self.latestStats.drumSpeedLevel
+
+
+    def drumSpeedUp(self):
+        self.logger.debug('BulletR1.drumSpeedUp')
+        self.setDrumSpeedLevel(self.drumSpeedLevel() - 1)
 
 
     def drumTemperature(self):
@@ -98,30 +127,36 @@ class BulletR1(object):
 
 
     def fanDown(self):
-        self.logger.debug('BulletR1.fanUp')
-        currentSpeed = self.fanSpeed()
-        self.writePacket(bytearray([0x31, 0x02, 0xaa, 0xaa]), "fanUp")
-        self.waitForTransfers()
-        while currentSpeed == self.fanSpeed():
-            self.requestStats()
-            self.waitForTransfers()
+        self.logger.debug('BulletR1.fanDown')
+        self.writePacket(self.FAN_DOWN_PACKET, "fanDown")
 
 
-    def fanSpeed(self):
-        return self.latestStats.fanSpeed
+    def fanSpeedLevel(self):
+        return self.latestStats.fanSpeedLevel
 
 
     def fanUp(self):
         self.logger.debug('BulletR1.fanUp')
-        currentSpeed = self.fanSpeed()
-        self.writePacket(bytearray([0x31, 0x01, 0xaa, 0xaa]), "fanUp")
-        while currentSpeed == self.fanSpeed():
-            self.requestStats()
-            self.waitForTransfers()
+        self.writePacket(self.FAN_UP_PACKET, "fanUp")
 
 
-    def heaterPower(self):
-        return self.latestStats.heaterPower
+    def getOneStats(self):
+        self.requestStats()
+        self.waitForTransfers()
+
+
+    def heaterDown(self):
+        self.logger.debug('BulletR1.heaterDown')
+        self.writePacket(self.HEATER_DOWN_PACKET, "heaterDown")
+
+
+    def heaterPowerLevel(self):
+        return self.latestStats.heaterPowerLevel
+
+
+    def heaterUp(self):
+        self.logger.debug('BulletR1.heaterUp')
+        self.writePacket(self.HEATER_UP_PACKET, "heaterUp")
 
 
     def loadBeans(self):
@@ -141,6 +176,7 @@ class BulletR1(object):
     def on(self):
         self.logger.debug('BulletR1.on')
         self.open()
+        self.sample()
 
 
     def open(self):
@@ -164,11 +200,7 @@ class BulletR1(object):
 
     def prs(self):
         self.logger.debug('BulletR1.prs')
-        currentMode = self.mode()
-        self.writePacket(bytearray([0x30, 0x01, 0x0, 0x0]), "writePrs")
-        while currentMode == self.mode():
-            self.requestStats()
-            self.waitForTransfers()
+        self.writePacket(bytearray([0x30, 0x01, 0x0, 0x0]), 'prs')
 
 
     def readPacket(self, length, errorMsg, callback):
@@ -201,25 +233,46 @@ class BulletR1(object):
         self.waitForTransfers()
 
 
-    def setDrumSpeed(self, speed):
-        self.logger.debug('BulletR1.setDrumSpeed(%d)' % (speed))
-
-
-    def setFanSpeed(self, speed):
-        self.logger.debug('BulletR1.setFanSpeed(%d)' % (speed))
-        if self.fanSpeed() < 0:
+    def setDrumSpeedLevel(self, level):
+        self.logger.debug('BulletR1.setDrumSpeedLevel(%d)' % (level))
+        if level < 1 or level > 9:
+            raise ValueError("setDrumSpeedLevel level value must be between 1 and 9 inclusive")
+        if self.mode() not in self.DRUM_SPEED_MODES:
             return
+        self.writePacket(bytearray([0x32, 0x01, level, 0x00]), "setDrumSpeedLevel")
+
+
+    def setFanSpeedLevel(self, level):
+        self.logger.debug('BulletR1.setFanSpeedLevel(%d)' % (level))
+        if level < 0 or level > 12:
+            raise ValueError("setFanSpeedLevel level value must be between 0 and 15 inclusive")
+        if self.mode() not in self.FAN_SPEED_MODES:
+            return
+        self.setToTargetBySteps(level, self.fanSpeedLevel, self.FAN_DOWN_PACKET, self.FAN_UP_PACKET, "setFanSpeedLevel")
+
+
+    def setHeaterPowerLevel(self, level):
+        self.logger.debug('BulletR1.setHeaterPowerLevel(%d)' % (level))
+        if level < 0 or level > 9:
+            raise ValueError("setHeaterPowerLevel level value must be between 0 and 9 inclusive")
         if self.mode() != self.MODE_ROASTING:
             return
-        while self.fanSpeed() != speed:
-            if self.fanSpeed() < speed:
-                self.fanUp()
-            else:
-                self.fanDown()
+        self.setToTargetBySteps(level, self.heaterPowerLevel, self.HEATER_DOWN_PACKET, self.HEATER_UP_PACKET, "setHeaterPowerLevel")
 
 
-    def setPower(self, power):
-        self.logger.debug('BulletR1.setPower(%d)' % (power))
+    def setToTargetBySteps(self, target, getCurrent, decreasePacket, increasePacket, name):
+        current = getCurrent()
+        if target < current:
+            self.logger.debug("decrease from %d to %d" % (current, target))
+            timesToWrite = current - target
+            packet = decreasePacket
+        else:
+            self.logger.debug("increase from %d to %d" % (current, target))
+            timesToWrite = target - current
+            packet = increasePacket
+        self.logger.debug("timesToWrite: %d" % timesToWrite)
+        repeatPacketWriter = PacketRepeatWriter(self, packet, timesToWrite, name)
+        repeatPacketWriter.write()
 
 
     def statsReadReady(self, transfer):
@@ -230,6 +283,7 @@ class BulletR1(object):
             self.latestStats = stats
             self.requestStatus()
         else:
+            time.sleep(0.5)
             self.logger.debug('BulletR1: got stats finished')
 
 
@@ -265,11 +319,25 @@ class BulletR1(object):
     def untilMode(self, requestedMode):
         while self.mode() != requestedMode:
             self.prs()
+            self.waitUntil(functools.partial(lambda self, currentMode: self.mode() != currentMode, self, self.mode()), "mode is not %s" % self.mode())
 
 
     def waitForTransfers(self):
         while any(transfer.isSubmitted() for transfer in self.transferList):
             self.usbContext.handleEvents()
+
+
+    def waitUntil(self, condition, name):
+        timesStatsRequested = 0
+        lastStatsIndex = self.latestStats.index
+        while not condition():
+            self.waitForTransfers()
+            self.getOneStats()
+            timesStatsRequested += 1
+            if timesStatsRequested > 8:
+                raise self.ChangeTimeout("waiting until %s, but had 8 stats with no change after change request" % (name))
+            if lastStatsIndex == self.latestStats.index:
+                time.sleep(0.5)
 
 
     def writePacket(self, packet, errorMsg, callback = None):
@@ -289,4 +357,9 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
     R1 = BulletR1(logger)
     R1.on()
-    R1.sample()
+    R1.untilMode(BulletR1.MODE_ROASTING)
+    R1.setFanSpeedLevel(12)
+    R1.waitUntil(functools.partial(lambda R1: R1.fanSpeedLevel() == 12, R1), "fanSpeedLevel is 12")
+    R1.setHeaterPowerLevel(0)
+    R1.waitUntil(functools.partial(lambda R1: R1.heaterPowerLevel() == 0, R1), "powerHeaterLevel is 0")
+    R1.off()

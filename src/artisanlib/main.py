@@ -32171,8 +32171,8 @@ class serialport(object):
                                    self.VOLTCRAFTPL125T4,     #77
                                    self.VOLTCRAFTPL125T4_34,  #78
                                    self.R1_BTET,              #79
-                                   self.R1_FanAndHeaterSpeed, #80
-                                   self.R1_ModeAndDrumSpeed,  #81
+                                   self.R1_FanSpeedLevelAndHeaterPowerLevel, #80
+                                   self.R1_ModeAndDrumSpeedLevel,  #81
                                    ]
         #string with the name of the program for device #27
         self.externalprogram = "test.py"
@@ -32631,16 +32631,16 @@ class serialport(object):
         v2 = self.R1.beanTemperature()
         return tx,aw.qmc.convertC(v1),aw.qmc.convertC(v2)
 
-    def R1_FanAndHeaterSpeed(self):
+    def R1_FanSpeedLevelAndHeaterPowerLevel(self):
         tx = aw.qmc.timeclock.elapsed()/1000.
-        v1 = self.R1.fanSpeed()
-        v2 = self.R1.heaterPower()
+        v1 = self.R1.fanSpeedLevel()
+        v2 = self.R1.heaterPowerLevel()
         return tx,v1,v2
 
-    def R1_ModeAndDrumSpeed(self):
+    def R1_ModeAndDrumSpeedLevel(self):
         tx = tx = aw.qmc.timeclock.elapsed()/1000.
         v1 = self.R1.mode()
-        v2 = self.R1.drumSpeed()
+        v2 = self.R1.drumSpeedLevel()
         return tx,v1,v2
 
     def HOTTOP_BTET(self):

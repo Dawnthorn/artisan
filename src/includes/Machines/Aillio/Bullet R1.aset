@@ -44,14 +44,14 @@ buttonpalette_shortcuts=true
 buttonpalettemaxlen=6, 6, 6, 14, 14, 14, 14, 14, 14, 14
 extraeventbuttoncolor=#997c5f, #b79f87, #fff0a3, #fff8d4, #688a62, #87b190, #2175c3, #4691cf, #7c0010, #ab3444
 extraeventbuttontextcolor=#ffffff, #ffffff, black, black, #ffffff, #ffffff, #ffffff, #ffffff, #ffffff, #ffffff
-extraeventsactions=15,15,15
-extraeventsactionstrings=prs, fanDown, fanUp
+extraeventsactions=15,15,15,15,15
+extraeventsactionstrings=prs, fanDown, fanUp, drumSpeedDown, drumSpeedUp
 extraeventsbuttonsflag=0
-extraeventsdescriptions=PRS, Fan -, Fan +
-extraeventslabels=PRS, Fan -, Fan +
-extraeventstypes=4, 5, 5
-extraeventsvalues=1, 1, 1
-extraeventsvisibility=1, 1, 1
+extraeventsdescriptions=PRS, Fan -, Fan +, Drum -, Drum +
+extraeventslabels=PRS, Fan -, Fan +, Drum -, Drum +
+extraeventstypes=4, 5, 5, 5, 5
+extraeventsvalues=1, 1, 1, 1, 1
+extraeventsvisibility=1, 1, 1, 1, 1
 
 [Quantifiers]
 clusterEventsFlag=true
@@ -68,22 +68,14 @@ DeltaETlcd=false
 [RoastProperties]
 roastertype=Aillio Bullet R1
 
-[SerialPort]
-baudrate=115200
-bytesize=8
-comport=/dev/cu.usbserial-DA01POGR
-parity=N
-stopbits=1
-timeout=1
-
 [Sliders]
 eventslidercoarse=0, 0, 0, 0
 eventslidersflag=0
 slideractions=12, 12, 0, 12
-slidercommands=setFanSpeed, setDrumSpeed, , setPower
+slidercommands=setFanSpeedLevel, setDrumSpeedLevel, , setHeaterPowerLevel
 sliderfactors=1, 1, 1, 1
 slidermax=12, 9, 100, 9
-slidermin=1, 0, 0, 0
+slidermin=1, 1, 0, 0
 slideroffsets=0, 0, 0, 0
 slidervisibilities=1, 1, 0, 1
 

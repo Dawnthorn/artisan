@@ -34,7 +34,8 @@ class AillioR1:
     AILLIO_STATE_COOLING = 0x08
     AILLIO_STATE_SHUTDOWN = 0x09
 
-    def __init__(self, debug=True):
+    def __init__(self, logger, debug=True):
+        self.logger = logger
         self.AILLIO_DEBUG = debug
         self.__dbg('init')
         self.usbhandle = None
@@ -58,7 +59,7 @@ class AillioR1:
     def __dbg(self, msg):
         if self.AILLIO_DEBUG:
             try:
-                print('AillioR1: ' + msg)
+                self.logger.debug('AillioR1: ' + msg)
             except IOError:
                 pass
 
@@ -237,7 +238,7 @@ class AillioR1:
                 self.__sendcmd(self.AILLIO_CMD_STATUS2)
                 state2 = self.__readreply(64)
             except Exception:
-                pass
+                self.logger.exception("__updatestate")
             if p.poll():
                 cmd = p.recv()
                 self.__sendcmd(cmd)
